@@ -1,5 +1,5 @@
 === Avix Migration ===
-Contributors: avixdigitalagency
+Contributors: avixdigital
 Tags: backup, migration, import, export, cloud storage
 Requires at least: 5.6
 Tested up to: 6.7
@@ -12,7 +12,7 @@ Backup, migrate, and transfer WordPress sites — full-site or selected content 
 
 == Description ==
 
-Avix Migration is Avix Digital Agency's in-house replacement for third-party
+Avix Migration is Avix Digital's in-house replacement for third-party
 migration plugins. Install it on a source site and a destination site, and
 move a WordPress install between them without hand-editing SQL, wrestling
 with mismatched table prefixes, or losing access to wp-admin partway

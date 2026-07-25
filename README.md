@@ -4,7 +4,7 @@ WordPress backup and migration plugin. Create a complete backup of a site — or
 export selected posts and pages — and restore it onto another WordPress
 install.
 
-Built and maintained by [Avix Digital](https://avixdigitalagency.com).
+Built and maintained by [Avix Digital](https://avixdigital.com).
 
 ---
 

@@ -1,13 +1,13 @@
 <?php
 /**
  * Plugin Name:       Avix Migration
- * Plugin URI:        https://avixdigitalagency.com/avix-migration
+ * Plugin URI:        https://avixdigital.com/avix-migration
  * Description:       Backup, migrate, and transfer WordPress sites — full-site or selected content — between installs.
  * Version:           1.0.10
  * Requires at least: 5.6
  * Requires PHP:      7.4
- * Author:            Avix Digital Agency
- * Author URI:        https://avixdigitalagency.com
+ * Author:            Avix Digital
+ * Author URI:        https://avixdigital.com
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       avix-migration
