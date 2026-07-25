@@ -1,0 +1,17 @@
+{
+    "name": "avix/avix-migration",
+    "description": "Avix Migration WordPress plugin — vendored dependencies.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=7.4",
+        "phpseclib/phpseclib": "^3.0"
+    },
+    "config": {
+        "platform": {
+            "php": "7.4"
+        },
+        "optimize-autoloader": true,
+        "classmap-authoritative": true
+    }
+}

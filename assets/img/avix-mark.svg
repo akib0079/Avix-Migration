@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Avix">
+	<!--
+		Avix brand mark: orange disc with a single continuous white ribbon —
+		45° diagonal runs joined by two rounded hooks (up-right, over, down-right,
+		under, up-right). Both ends run well past the disc and are clipped back
+		to it, which is what produces the extra parallel bands at the lower-left
+		and upper-right rather than visible stroke ends.
+
+		Vector rather than the source bitmap so it stays crisp at the 36px header
+		size and on retina. If you drop your real logo file in as
+		assets/img/avix-logo.(svg|png), the header uses that instead — see
+		Avix_Migration_Admin_Menu::brand_mark_url().
+	-->
+	<defs>
+		<clipPath id="avix-disc">
+			<circle cx="50" cy="50" r="50"/>
+		</clipPath>
+	</defs>
+
+	<circle cx="50" cy="50" r="50" fill="#ff6600"/>
+
+	<g clip-path="url(#avix-disc)" fill="none" stroke="#ffffff" stroke-linecap="butt" stroke-linejoin="round">
+		<!--
+			The ribbon. Tight hooks (small-radius quadratics, not a lazy sine
+			wave) are what give the mark its interlocking look — the crest and
+			valley turn hard, the runs between them stay straight at 45°.
+		-->
+		<path d="M -30 92 L 26 36 Q 34 28, 42 36 L 50 44 Q 58 52, 66 44 L 128 -18" stroke-width="10"/>
+	</g>
+</svg>

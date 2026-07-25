@@ -1,0 +1,759 @@
+/**
+ * Avix Migration — admin design system.
+ *
+ * Every rule is prefixed .avix- so nothing here leaks into the rest of
+ * wp-admin and nothing from wp-admin's own styles overrides it unexpectedly.
+ * Most rules also sit under .avix-wrap; the exceptions are the overlays
+ * (modal, toast) which are appended to document.body and so are prefix-scoped
+ * only — see the token block below for why that distinction matters.
+ * No build step, no preprocessor — this is the literal file the browser loads.
+ *
+ * Deliberately a single light/white brand theme with no prefers-color-scheme
+ * dark variant: the Avix brand is orange on white, and an auto-darkening
+ * admin would render the plugin in slate-grey on machines set to dark mode —
+ * off-brand, and not what was asked for. Neutrals carry a slight warm tint
+ * rather than being pure grey, so white surfaces sit with #ff6600 instead of
+ * fighting it (cool greys next to a warm orange read as dingy).
+ */
+
+/*
+ * Tokens live on :root as well as .avix-wrap. Modals and toasts are appended
+ * to document.body — deliberately, so they can't be clipped by an ancestor's
+ * overflow or stacking context — which puts them OUTSIDE .avix-wrap. Custom
+ * properties inherit down the tree, so tokens defined only on .avix-wrap
+ * resolve to nothing out there: var(--avix-surface) left the modal panel with
+ * no background, and var(--avix-danger)/var(--avix-text) left the Confirm
+ * button with no fill and invisible label.
+ *
+ * Declaring custom properties on :root does not leak any styling into
+ * wp-admin — a property only takes effect where a rule references it, and
+ * every rule here stays under an .avix- prefix.
+ */
+:root,
+.avix-wrap {
+	--avix-bg: #faf8f6;
+	--avix-surface: #ffffff;
+	--avix-surface-2: #fdfaf7;
+	--avix-border: #ece6e0;
+	--avix-text: #1c1a18;
+	--avix-text-muted: #6f6862;
+	--avix-primary: #ff6600;
+	--avix-primary-hover: #e65c00;
+	--avix-primary-soft: #fff2e8;
+	--avix-primary-ring: rgba(255, 102, 0, 0.28);
+	--avix-success: #12875a;
+	--avix-success-soft: #e6f6ee;
+	--avix-warning: #a15c00;
+	--avix-warning-soft: #fdf1de;
+	--avix-danger: #c22b3a;
+	--avix-danger-soft: #fdecee;
+	--avix-radius: 10px;
+	--avix-radius-sm: 6px;
+	--avix-shadow: 0 1px 2px rgba(60, 40, 25, 0.06), 0 1px 1px rgba(60, 40, 25, 0.04);
+	--avix-shadow-lg: 0 8px 24px rgba(60, 40, 25, 0.12), 0 2px 6px rgba(60, 40, 25, 0.08);
+	--avix-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+.avix-wrap {
+	margin: 20px 20px 20px 0;
+	color: var(--avix-text);
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+/*
+ * The reset has to cover the body-level overlays too, or the modal's padded
+ * panel and its inputs compute their widths on a different box model than
+ * everything inside .avix-wrap.
+ */
+.avix-wrap *,
+.avix-modal-overlay *,
+.avix-toast-container * {
+	box-sizing: border-box;
+}
+
+/*
+ * :not(.avix-btn) matters. Several "buttons" are really anchors (Create
+ * backup, Download, View all), and `.avix-wrap a` scores 0,1,1 against
+ * `.avix-btn-primary`'s 0,1,0 — so without this exclusion the link colour
+ * wins and paints an orange label onto an orange fill, rendering it
+ * invisible. Buttons must take their colour from their own variant.
+ */
+.avix-wrap a:not(.avix-btn) {
+	color: var(--avix-primary);
+}
+
+/* ---------- Header ---------- */
+
+.avix-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	background: var(--avix-surface);
+	border: 1px solid var(--avix-border);
+	border-radius: var(--avix-radius);
+	padding: 20px 24px;
+	margin-bottom: 16px;
+	box-shadow: var(--avix-shadow);
+}
+
+.avix-header__brand {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+/*
+ * The logo is its own artwork (a full-bleed orange disc), so no background,
+ * padding, or radius here — those would either double up on the disc or clip
+ * it. object-fit keeps a non-square logo file from being stretched if one is
+ * dropped in via brand_mark_url().
+ */
+.avix-header__mark {
+	width: 36px;
+	height: 36px;
+	flex-shrink: 0;
+	object-fit: contain;
+	display: block;
+}
+
+.avix-header__title {
+	font-size: 18px;
+	font-weight: 600;
+	margin: 0;
+}
+
+.avix-header__tagline {
+	font-size: 12.5px;
+	color: var(--avix-text-muted);
+	margin: 2px 0 0;
+}
+
+/* ---------- Tabs ---------- */
+
+.avix-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	background: var(--avix-surface);
+	border: 1px solid var(--avix-border);
+	border-radius: var(--avix-radius);
+	padding: 6px;
+	margin-bottom: 20px;
+	box-shadow: var(--avix-shadow);
+}
+
+.avix-tab {
+	appearance: none;
+	background: transparent;
+	border: none;
+	color: var(--avix-text-muted);
+	font-size: 13px;
+	font-weight: 500;
+	padding: 8px 14px;
+	border-radius: var(--avix-radius-sm);
+	text-decoration: none;
+	cursor: pointer;
+	transition: background 0.12s ease, color 0.12s ease;
+}
+
+.avix-tab:hover {
+	background: var(--avix-surface-2);
+	color: var(--avix-text);
+}
+
+.avix-tab.is-active {
+	background: var(--avix-primary-soft);
+	color: var(--avix-primary);
+}
+
+/* ---------- Layout ---------- */
+
+.avix-main {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.avix-section-title {
+	font-size: 15px;
+	font-weight: 600;
+	margin: 0 0 4px;
+}
+
+.avix-section-desc {
+	color: var(--avix-text-muted);
+	font-size: 13px;
+	margin: 0 0 16px;
+}
+
+/* ---------- Cards ---------- */
+
+.avix-card {
+	background: var(--avix-surface);
+	border: 1px solid var(--avix-border);
+	border-radius: var(--avix-radius);
+	padding: 20px;
+	box-shadow: var(--avix-shadow);
+}
+
+.avix-card-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 14px;
+}
+
+.avix-stat {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.avix-stat__label {
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--avix-text-muted);
+}
+
+.avix-stat__value {
+	font-size: 22px;
+	font-weight: 600;
+}
+
+.avix-stat__hint {
+	font-size: 12px;
+	color: var(--avix-text-muted);
+}
+
+.avix-actions-row {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 14px;
+}
+
+.avix-action-card {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	align-items: flex-start;
+	background: var(--avix-surface);
+	border: 1px solid var(--avix-border);
+	border-radius: var(--avix-radius);
+	padding: 20px;
+	box-shadow: var(--avix-shadow);
+	text-decoration: none;
+	color: inherit;
+	transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.avix-action-card:hover {
+	transform: translateY(-1px);
+	box-shadow: var(--avix-shadow-lg);
+}
+
+.avix-action-card__icon {
+	width: 40px;
+	height: 40px;
+	border-radius: 10px;
+	background: var(--avix-primary-soft);
+	color: var(--avix-primary);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.avix-action-card__title {
+	font-weight: 600;
+	font-size: 14px;
+}
+
+.avix-action-card__desc {
+	font-size: 12.5px;
+	color: var(--avix-text-muted);
+}
+
+/* ---------- Buttons ---------- */
+
+.avix-btn {
+	appearance: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 13px;
+	font-weight: 500;
+	padding: 8px 16px;
+	border-radius: var(--avix-radius-sm, 6px);
+	/* Fallbacks so a button is never rendered as unstyled, unreadable text
+	   if it ends up somewhere the tokens don't reach. */
+	border: 1px solid var(--avix-border, #ece6e0);
+	background: var(--avix-surface, #fff);
+	color: var(--avix-text, #1c1a18);
+	cursor: pointer;
+	text-decoration: none;
+	transition: background 0.12s ease, border-color 0.12s ease, opacity 0.12s ease;
+}
+
+.avix-btn:hover {
+	background: var(--avix-surface-2);
+}
+
+/*
+ * Disabled buttons get an explicit muted style rather than opacity: 0.5.
+ * Fading a filled variant halves the fill AND the label together — white
+ * text on a 50%-opacity orange or red leaves the label all but unreadable,
+ * which is exactly how "Confirm" and "Create backup" were rendering. A flat
+ * neutral keeps the label legible while still clearly reading as inactive.
+ *
+ * Higher specificity than .avix-btn-primary / .avix-btn-danger (0,2,0 vs
+ * 0,1,0), so this wins regardless of source order.
+ */
+.avix-btn:disabled,
+.avix-btn[disabled] {
+	opacity: 1;
+	cursor: not-allowed;
+	background: var(--avix-surface-2, #fdfaf7);
+	border-color: var(--avix-border, #ece6e0);
+	color: var(--avix-text-muted, #6f6862);
+	box-shadow: none;
+}
+
+/* Hover must not re-tint a disabled control. */
+.avix-btn:disabled:hover,
+.avix-btn[disabled]:hover {
+	background: var(--avix-surface-2, #fdfaf7);
+	border-color: var(--avix-border, #ece6e0);
+}
+
+.avix-btn-primary {
+	background: var(--avix-primary, #ff6600);
+	border-color: var(--avix-primary, #ff6600);
+	color: #fff;
+}
+
+.avix-btn-primary:hover {
+	background: var(--avix-primary-hover);
+	border-color: var(--avix-primary-hover);
+}
+
+/*
+ * Every filled variant needs its own hover, or the generic .avix-btn:hover
+ * repaints it with the neutral surface colour while the label stays white —
+ * white-on-near-white, i.e. the label vanishes on hover. This was missing
+ * for danger, which is why the red Drop button went blank under the cursor.
+ */
+.avix-btn-danger:hover {
+	background: #a82231;
+	border-color: #a82231;
+	color: #fff;
+}
+
+.avix-btn-primary:hover,
+.avix-btn-danger:hover {
+	color: #fff;
+}
+
+.avix-btn-danger {
+	background: var(--avix-danger, #c22b3a);
+	border-color: var(--avix-danger, #c22b3a);
+	color: #fff;
+}
+
+.avix-btn-ghost {
+	background: transparent;
+	border-color: transparent;
+}
+
+.avix-btn-sm {
+	padding: 5px 10px;
+	font-size: 12px;
+}
+
+/* ---------- Badges ---------- */
+
+.avix-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 11.5px;
+	font-weight: 600;
+	padding: 3px 9px;
+	border-radius: 999px;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+}
+
+.avix-badge-neutral {
+	background: var(--avix-surface-2);
+	color: var(--avix-text-muted);
+}
+
+.avix-badge-success {
+	background: var(--avix-success-soft);
+	color: var(--avix-success);
+}
+
+.avix-badge-warning {
+	background: var(--avix-warning-soft);
+	color: var(--avix-warning);
+}
+
+.avix-badge-danger {
+	background: var(--avix-danger-soft);
+	color: var(--avix-danger);
+}
+
+/* ---------- Forms ---------- */
+
+.avix-field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin-bottom: 16px;
+}
+
+.avix-field__label {
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.avix-field__hint {
+	font-size: 12px;
+	color: var(--avix-text-muted);
+}
+
+.avix-input,
+.avix-select {
+	font-size: 13px;
+	padding: 8px 10px;
+	border: 1px solid var(--avix-border, #ece6e0);
+	border-radius: var(--avix-radius-sm, 6px);
+	background: var(--avix-surface, #fff);
+	color: var(--avix-text, #1c1a18);
+	width: 100%;
+	max-width: 420px;
+}
+
+.avix-toggle-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 10px 0;
+	border-bottom: 1px solid var(--avix-border);
+}
+
+.avix-toggle-row:last-child {
+	border-bottom: none;
+}
+
+.avix-toggle-row__label {
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.avix-toggle-row__hint {
+	font-size: 12px;
+	color: var(--avix-text-muted);
+}
+
+.avix-switch {
+	position: relative;
+	display: inline-block;
+	width: 38px;
+	height: 22px;
+	flex-shrink: 0;
+}
+
+.avix-switch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.avix-switch__track {
+	position: absolute;
+	inset: 0;
+	background: var(--avix-border);
+	border-radius: 999px;
+	transition: background 0.15s ease;
+	cursor: pointer;
+}
+
+.avix-switch__track::before {
+	content: "";
+	position: absolute;
+	width: 16px;
+	height: 16px;
+	left: 3px;
+	top: 3px;
+	background: #fff;
+	border-radius: 50%;
+	transition: transform 0.15s ease;
+}
+
+.avix-switch input:checked + .avix-switch__track {
+	background: var(--avix-primary);
+}
+
+.avix-switch input:checked + .avix-switch__track::before {
+	transform: translateX(16px);
+}
+
+/* ---------- Progress ---------- */
+
+.avix-progress {
+	width: 100%;
+	height: 10px;
+	border-radius: 999px;
+	background: var(--avix-surface-2);
+	border: 1px solid var(--avix-border);
+	overflow: hidden;
+}
+
+.avix-progress__fill {
+	height: 100%;
+	background: linear-gradient(90deg, var(--avix-primary), #ff9142);
+	border-radius: 999px;
+	transition: width 0.3s ease;
+	width: 0%;
+}
+
+.avix-progress-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 8px;
+	font-size: 13px;
+}
+
+.avix-progress-row__stage {
+	font-weight: 600;
+}
+
+.avix-progress-meta {
+	display: flex;
+	gap: 16px;
+	font-size: 12px;
+	color: var(--avix-text-muted);
+	margin-top: 8px;
+	flex-wrap: wrap;
+}
+
+.avix-heartbeat {
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--avix-success);
+	animation: avix-pulse 1.4s ease-in-out infinite;
+}
+
+.avix-heartbeat.is-stalled {
+	background: var(--avix-warning);
+	animation: none;
+}
+
+@keyframes avix-pulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.35; }
+}
+
+/* ---------- Log panel ---------- */
+
+.avix-log {
+	background: #0f1117;
+	color: #cfd3dc;
+	border-radius: var(--avix-radius-sm);
+	font-family: var(--avix-mono);
+	font-size: 12px;
+	max-height: 220px;
+	overflow-y: auto;
+	padding: 12px;
+}
+
+.avix-log__line {
+	white-space: pre-wrap;
+	word-break: break-word;
+	padding: 2px 0;
+}
+
+.avix-log__line.is-error { color: #f27686; }
+.avix-log__line.is-warning { color: #f0b355; }
+
+/* ---------- Table ---------- */
+
+.avix-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+}
+
+.avix-table th {
+	text-align: left;
+	font-size: 11.5px;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	color: var(--avix-text-muted);
+	padding: 10px 12px;
+	border-bottom: 1px solid var(--avix-border);
+}
+
+.avix-table td {
+	padding: 12px;
+	border-bottom: 1px solid var(--avix-border);
+	vertical-align: middle;
+}
+
+.avix-table tr:last-child td {
+	border-bottom: none;
+}
+
+.avix-table tr:hover td {
+	background: var(--avix-surface-2);
+}
+
+/* ---------- Empty state ---------- */
+
+.avix-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	gap: 8px;
+	padding: 48px 24px;
+	color: var(--avix-text-muted);
+}
+
+.avix-empty__title {
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--avix-text);
+}
+
+/* ---------- Toasts ---------- */
+
+.avix-toast-container {
+	position: fixed;
+	top: 44px;
+	right: 20px;
+	z-index: 100000;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.avix-toast {
+	/* Same body-level exposure as the modal: fallbacks keep a toast legible
+	   even if the tokens don't reach it. */
+	background: var(--avix-surface, #fff);
+	color: var(--avix-text, #1c1a18);
+	border: 1px solid var(--avix-border, #ece6e0);
+	border-left: 3px solid var(--avix-primary, #ff6600);
+	box-shadow: var(--avix-shadow-lg, 0 8px 24px rgba(60, 40, 25, 0.18));
+	border-radius: var(--avix-radius-sm, 6px);
+	padding: 12px 16px;
+	font-size: 13px;
+	min-width: 260px;
+	max-width: 360px;
+	animation: avix-toast-in 0.2s ease;
+}
+
+.avix-toast.is-success { border-left-color: var(--avix-success, #12875a); }
+.avix-toast.is-warning { border-left-color: var(--avix-warning, #a15c00); }
+.avix-toast.is-error { border-left-color: var(--avix-danger, #c22b3a); }
+
+@keyframes avix-toast-in {
+	from { opacity: 0; transform: translateY(-6px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Modal ---------- */
+
+.avix-modal-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(28, 26, 24, 0.55);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 100001;
+	/* Typography is set on .avix-wrap, which this sits outside of. */
+	color: var(--avix-text);
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.avix-modal {
+	/* Explicit #fff fallbacks: if a token ever fails to resolve again, the
+	   panel degrades to a plain readable white card instead of a transparent
+	   one with unreadable controls. */
+	background: var(--avix-surface, #fff);
+	color: var(--avix-text, #1c1a18);
+	border: 1px solid var(--avix-border, #ece6e0);
+	border-radius: var(--avix-radius, 10px);
+	box-shadow: var(--avix-shadow-lg, 0 8px 24px rgba(60, 40, 25, 0.18));
+	padding: 24px;
+	width: 420px;
+	max-width: calc(100vw - 40px);
+}
+
+.avix-modal__title {
+	font-size: 15px;
+	font-weight: 600;
+	margin: 0 0 8px;
+}
+
+.avix-modal__body {
+	font-size: 13px;
+	color: var(--avix-text-muted);
+	margin-bottom: 16px;
+}
+
+.avix-modal__actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+/* ---------- Wizard steps ---------- */
+
+.avix-wizard-steps {
+	display: flex;
+	gap: 8px;
+	margin-bottom: 20px;
+	flex-wrap: wrap;
+}
+
+.avix-wizard-step {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 12.5px;
+	color: var(--avix-text-muted);
+	padding: 6px 12px;
+	border-radius: 999px;
+	background: var(--avix-surface-2);
+	border: 1px solid var(--avix-border);
+}
+
+.avix-wizard-step.is-active {
+	color: var(--avix-primary);
+	background: var(--avix-primary-soft);
+	border-color: transparent;
+	font-weight: 600;
+}
+
+.avix-wizard-step.is-done {
+	color: var(--avix-success);
+}
+
+/* ---------- Utility ---------- */
+
+.avix-mt-0 { margin-top: 0; }
+.avix-text-muted { color: var(--avix-text-muted); }
+.avix-flex-between { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.avix-gap-sm { gap: 8px; }

@@ -1,0 +1,23 @@
+# Build artefacts
+*.zip
+
+# Runtime storage — created inside wp-content at runtime, never part of the source
+avix-backups/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Local environment overrides
+.env
+.env.*
+php.ini
+
+# Composer's own cache; vendor/ IS committed on purpose — see DOCUMENTATION.md
+# ("Dependencies"): the plugin ships with no build step, so a clone must be
+# immediately installable without running composer.
+composer.phar
